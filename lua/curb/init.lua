@@ -1,1 +1,7 @@
-print("Hello this is the first time making a plugin!")
+local M = {}
+
+function M.setup()
+	print("Curb is running")
+end
+
+return M
