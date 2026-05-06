@@ -1,0 +1,13 @@
+:Curb	curb.txt	/*:Curb*
+curb-config	curb.txt	/*curb-config*
+curb-config-accept	curb.txt	/*curb-config-accept*
+curb-config-highlights	curb.txt	/*curb-config-highlights*
+curb-config-trigger	curb.txt	/*curb-config-trigger*
+curb-contents	curb.txt	/*curb-contents*
+curb-highlights	curb.txt	/*curb-highlights*
+curb-install	curb.txt	/*curb-install*
+curb-intro	curb.txt	/*curb-intro*
+curb-setup	curb.txt	/*curb-setup*
+curb-usage	curb.txt	/*curb-usage*
+curb.txt	curb.txt	/*curb.txt*
+g:curb-config	curb.txt	/*g:curb-config*
