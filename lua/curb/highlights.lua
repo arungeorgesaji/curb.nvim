@@ -2,6 +2,13 @@ local M = {}
 
 local highlight_ns = "Curb"
 
+--- @param specs table : table containing highlight definitions for UI elements.
+---   - normal (string|table): Hex color, group name, or hl-attrs.
+---   - border (string|table): Hex color, group name, or hl-attrs.
+---   - title_icon (string|table): Hex color, group name, or hl-attrs.
+---   - title_text (string|table): Hex color, group name, or hl-attrs.
+---   - footer (string|table): Hex color, group name, or hl-attrs.
+--- @return table : resolved highlight groups for UI elements.
 function M.resolve(specs)
 	local function resolve_highlight(name, spec, default_group)
 		if type(spec) == "string" then

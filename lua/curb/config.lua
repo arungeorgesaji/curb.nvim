@@ -1,4 +1,4 @@
-local M = {}
+local Keys = {}
 
 local defaults = {
 	trigger_key = "<leader>ai",
@@ -12,11 +12,11 @@ local defaults = {
 	},
 }
 
-M.values = vim.deepcopy(defaults)
+Keys.values = vim.deepcopy(defaults)
 
-function M.setup(user_opts)
-	M.values = vim.tbl_deep_extend("force", vim.deepcopy(defaults), user_opts or {})
-	return M.values
+function Keys.setup(user_opts)
+	Keys.values = vim.tbl_deep_extend("force", vim.deepcopy(defaults), user_opts or {})
+	return Keys.values
 end
 
-return M
+return Keys

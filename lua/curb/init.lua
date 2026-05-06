@@ -82,17 +82,8 @@ function M.replace_visual()
 	vim.cmd("startinsert")
 end
 
--- commenting these out because this was a starting nooby point...
--- function CurrDirPrint()
--- 	print(vim.fn.getcwd())
--- end
-
--- @param user_opts table: User configuration options to override defaults
+--- @param user_opts table? User configuration options to override defaults.
 function M.setup(user_opts)
-	-- vim.api.nvim_create_user_command("Curb", function()
-	-- 	CurrDirPrint()
-	-- end, {})
-
 	config.setup(user_opts)
 
 	vim.api.nvim_create_user_command("Curb", function()
@@ -101,7 +92,7 @@ function M.setup(user_opts)
 
 	vim.keymap.set(
 		"x",
-			config.values.trigger_key,
+		config.values.trigger_key,
 		":<C-u>lua require('" .. (M._name or "curb") .. "').replace_visual()<CR>",
 		{
 			noremap = true,
