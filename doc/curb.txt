@@ -1,0 +1,113 @@
+*curb.txt*      For Neovim                    Last change: 2026-05-06
+
+==============================================================================
+CONTENTS                                                    *curb-contents*
+
+1. Introduction ............................................... |curb-intro|
+2. Installation ......................................... |curb-install|
+3. Setup ................................................... |curb-setup|
+4. Usage ................................................... |curb-usage|
+5. Configuration ....................................... |curb-config|
+6. Highlights ......................................... |curb-highlights|
+
+==============================================================================
+1. Introduction                                                 *curb-intro*
+
+Curb provides a floating prompt for replacing the current visual selection.
+
+==============================================================================
+2. Installation                                               *curb-install*
+
+Install the plugin with your preferred plugin manager, then call:
+
+>
+    require("curb").setup()
+<
+
+==============================================================================
+3. Setup                                                         *curb-setup*
+
+Minimal setup:
+
+>
+    require("curb").setup()
+<
+
+With options:
+
+>
+    require("curb").setup({
+      trigger_key = "<leader>ai",
+      accept_key = "<C-y>",
+      highlights = {
+        normal = "Normal",
+        border = "Keyword",
+        title_icon = "DiagnosticInfo",
+        title_text = "Keyword",
+        footer = "Comment",
+      },
+    })
+<
+
+The setup function creates:
+
+- The |:Curb| user command.
+- A visual mode keymap that opens the prompt for the current selection.
+
+==============================================================================
+4. Usage                                                         *curb-usage*
+
+Select text in visual mode and use one of the following:
+
+- Run |:Curb|
+- Press the configured `trigger_key`
+
+Inside the floating prompt, press the configured `accept_key` to apply the
+replacement.
+
+                                                         *:Curb*
+:Curb   Open the Curb prompt for the current visual selection.
+
+==============================================================================
+5. Configuration                                               *curb-config*
+
+                                                        *g:curb-config*
+Available setup keys:
+
+`trigger_key`                                              *curb-config-trigger*
+    Type: string
+    Default: >
+        "<leader>ai"
+<
+    Visual mode mapping used to open the prompt.
+
+`accept_key`                                                *curb-config-accept*
+    Type: string
+    Default: >
+        "<C-y>"
+<
+    Insert mode mapping used inside the prompt window to apply the result.
+
+`highlights`                                             *curb-config-highlights*
+    Type: table
+    Highlight definitions for the floating window UI.
+
+==============================================================================
+6. Highlights                                             *curb-highlights*
+
+Each highlight entry under `highlights` may be:
+
+- An existing highlight group name
+- A hex color string like `#89b4fa`
+- A table of highlight attributes accepted by |nvim_set_hl()|
+
+Supported keys:
+
+- `normal`
+- `border`
+- `title_icon`
+- `title_text`
+- `footer`
+
+==============================================================================
+vim:tw=78:ts=8:noet:ft=help:norl:
