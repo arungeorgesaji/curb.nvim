@@ -1,13 +1,27 @@
 local config = require("curb.config")
 local highlights = require("curb.highlights")
+local editor = require("curb.editor")
+local prompt = require("curb.prompt")
+
 local M = {}
+
+M.editor = editor
+M.prompt = prompt
+M._name = "curb"
 
 function M.replace_visual()
 	local start_pos = vim.fn.getpos("'<")
 	local end_pos = vim.fn.getpos("'>")
-	local start_line = start_pos[2]
-	local end_line = end_pos[2]
+
+	local start_row = start_pos[2] - 1
+	local start_col = start_pos[3] - 1
+	local end_row = end_pos[2] - 1
+	local end_col = end_pos[3]
+
 	local target_buf = vim.api.nvim_get_current_buf()
+
+	-- Extmark ID here!
+	local extmark_id = editor.create_extmark(target_buf, start_row, start_col, end_row, end_col)
 
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_set_option_value("buftype", "prompt", { buf = buf })
@@ -67,16 +81,28 @@ function M.replace_visual()
 	})
 
 	vim.keymap.set("i", config.values.accept_key, function()
+		-- Get the user prompt
+		local prompt_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+		local instruction = table.concat(prompt_lines, " "):gsub("^%s*", "")
+
+		-- Prompt Building here
+		local sys_prompt, user_prompt = prompt.build(target_buf, start_row, end_row, instruction)
+
 		vim.api.nvim_win_close(win, true)
 
-		local line_count = end_line - start_line + 1
-		local replacement = {}
+		editor.replace_with_extmark(target_buf, extmark_id, function(update_text)
+			-- TODO: Replace this mock array with your actual AI streaming logic
+			local mock_llm_response = {
+				"-- [AI Output Streaming Here] --",
+				string.format("-- Sys Prompt len: %d", #sys_prompt),
+				string.format("-- Usr Prompt len: %d", #user_prompt),
+			}
 
-		for i = 1, line_count do
-			table.insert(replacement, i, "Curb Output")
-		end
+			update_text(mock_llm_response)
 
-		vim.api.nvim_buf_set_lines(target_buf, start_line - 1, end_line, false, replacement)
+			-- @arungeorgesaji : Clear the extmark after replacement is done to avoid clutter and potential bugs
+			editor.clear_extmark(target_buf, extmark_id)
+		end)
 	end, { buffer = buf, noremap = true, silent = true })
 
 	vim.cmd("startinsert")
@@ -101,7 +127,5 @@ function M.setup(user_opts)
 		}
 	)
 end
-
-M._name = "curb"
 
 return M
