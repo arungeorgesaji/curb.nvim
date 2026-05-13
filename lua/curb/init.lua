@@ -37,23 +37,17 @@ function M.api_key_status()
 	vim.notify("Curb: no API key configured. Run :CurbSetApiKey", vim.log.levels.WARN)
 end
 
-function M.replace_visual()
-	local start_pos = vim.fn.getpos("'<")
-	local end_pos = vim.fn.getpos("'>")
-
-	local start_row = start_pos[2] - 1
-	local start_col = start_pos[3] - 1
-	local end_row = end_pos[2] - 1
-	local end_col = end_pos[3]
-
-	local target_buf = vim.api.nvim_get_current_buf()
-
-	-- Extmark ID here!
-	local extmark_id = editor.create_extmark(target_buf, start_row, start_col, end_row, end_col)
+-- @arungeorgesaji : function added just for the ui
+function M.open_prompt_for_extmark(target_buf, extmark_id)
+	local start_row, end_row = editor.get_extmark_rows(target_buf, extmark_id)
+	if not start_row then
+		return
+	end
 
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_set_option_value("buftype", "prompt", { buf = buf })
 	vim.fn.prompt_setprompt(buf, " ")
+
 	local width = 40
 	local height = 1
 	local ui = vim.api.nvim_list_uis()[1]
@@ -66,10 +60,7 @@ function M.replace_visual()
 		row = (ui.height / 2) - (height / 2),
 		style = "minimal",
 		border = "single",
-		title = {
-			{ " ⚡", resolved_highlights.title_icon },
-			{ "CURB ", resolved_highlights.title_text },
-		},
+		title = { { " ⚡", resolved_highlights.title_icon }, { "CURB ", resolved_highlights.title_text } },
 		title_pos = "center",
 		footer = {
 			{ " Press ", resolved_highlights.footer },
@@ -89,46 +80,59 @@ function M.replace_visual()
 	vim.api.nvim_set_option_value("wrap", true, { win = win })
 	vim.api.nvim_set_option_value("linebreak", true, { win = win })
 
-	-- Dynamic Height change logic
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		buffer = buf,
 		callback = function()
 			local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 			local total_height = 0
-
 			for _, line in ipairs(lines) do
-				local line_width = vim.fn.strdisplaywidth(line)
-				local needed_height = math.max(1, math.ceil(line_width / width))
+				local needed_height = math.max(1, math.ceil(vim.fn.strdisplaywidth(line) / width))
 				total_height = total_height + needed_height
 			end
-
-			local new_height = math.min(math.max(total_height, 1), 5)
-
-			vim.api.nvim_win_set_config(win, { height = new_height })
+			vim.api.nvim_win_set_config(win, { height = math.min(math.max(total_height, 1), 5) })
 		end,
 	})
 
 	vim.keymap.set("i", config.values.accept_key, function()
-		-- Get the user prompt
 		local prompt_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 		local instruction = table.concat(prompt_lines, " "):gsub("^%s*", "")
-
-		-- Prompt Building here
 		local sys_prompt, user_prompt = prompt.build(target_buf, start_row, end_row, instruction)
 
 		vim.api.nvim_win_close(win, true)
 
+		editor.start_loading(target_buf, extmark_id)
+
 		provider.generate_replacement(sys_prompt, user_prompt, function(replacement)
+			editor.stop_loading(target_buf)
+
 			if not replacement then
 				editor.clear_extmark(target_buf, extmark_id)
 				return
 			end
 
-			editor.replace_with_extmark(target_buf, extmark_id, replacement)
+			editor.replace_interactive(target_buf, extmark_id, replacement, function(new_extmark)
+				M.open_prompt_for_extmark(target_buf, new_extmark)
+			end)
 		end)
 	end, { buffer = buf, noremap = true, silent = true })
 
 	vim.cmd("startinsert")
+end
+
+function M.replace_visual()
+	local start_pos = vim.fn.getpos("'<")
+	local end_pos = vim.fn.getpos("'>")
+
+	local start_row = start_pos[2] - 1
+	local start_col = start_pos[3] - 1
+	local end_row = end_pos[2] - 1
+	local end_col = end_pos[3]
+
+	local target_buf = vim.api.nvim_get_current_buf()
+	local extmark_id = editor.create_extmark(target_buf, start_row, start_col, end_row, end_col)
+
+	-- leaving UI to a new fn, feeding it
+	M.open_prompt_for_extmark(target_buf, extmark_id)
 end
 
 --- @param user_opts table? User configuration options to override defaults.
