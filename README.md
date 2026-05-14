@@ -20,7 +20,8 @@ Select text in visual mode and use one of the following:
 - Press the configured trigger mapping
 
 Inside the floating prompt, press the configured accept key to apply the
-replacement.
+request. After the replacement is generated, review it in the buffer and use
+the configured review keys to accept, reject, or reprompt.
 
 ## Default Configuration
 
@@ -28,6 +29,8 @@ replacement.
 require("curb").setup({
   trigger_key = "<leader>ai",
   accept_key = "<C-y>",
+  reject_key = "<C-n>",
+  reprompt_key = "<C-p>",
   provider = {
     endpoint = "https://ai.hackclub.com/proxy/v1/chat/completions",
     model = "qwen/qwen3-coder-plus",

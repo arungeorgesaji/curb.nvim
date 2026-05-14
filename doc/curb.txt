@@ -45,6 +45,8 @@ With options:
     require("curb").setup({
       trigger_key = "<leader>ai",
       accept_key = "<C-y>",
+      reject_key = "<C-n>",
+      reprompt_key = "<C-p>",
       provider = {
         endpoint = "https://ai.hackclub.com/proxy/v1/chat/completions",
         model = "qwen/qwen3-coder-plus",
@@ -74,8 +76,10 @@ Select text in visual mode and use one of the following:
 - Run |:Curb|
 - Press the configured `trigger_key`
 
-Inside the floating prompt, press the configured `accept_key` to apply the
-replacement.
+Inside the floating prompt, press the configured `accept_key` to submit the
+request. After Curb generates a replacement, it is inserted into the current
+buffer for review. Use the configured review keys to accept the edit, reject
+it, or reprompt without leaving the buffer.
 
                                                          *:Curb*
 :Curb   Open the Curb prompt for the current visual selection.
@@ -106,7 +110,23 @@ Available setup keys:
     Default: >
         "<C-y>"
 <
-    Insert mode mapping used inside the prompt window to apply the result.
+    Insert mode mapping used inside the prompt window to submit the request.
+
+`reject_key`                                                *curb-config-reject*
+    Type: string
+    Default: >
+        "<C-n>"
+<
+    Buffer-local mapping used while reviewing a generated replacement to
+    reject the edit and restore the original text.
+
+`reprompt_key`                                            *curb-config-reprompt*
+    Type: string
+    Default: >
+        "<C-p>"
+<
+    Buffer-local mapping used while reviewing a generated replacement to
+    restore the original text and reopen the prompt.
 
 `provider`
     Type: table
